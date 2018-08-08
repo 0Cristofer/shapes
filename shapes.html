@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<!-- HTML 4 -->
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<!-- HTML5 -->
+<meta charset="utf-8"/>
+<link rel="stylesheet" href="style.css">
+<body>
+<div class="container">
+    <div class="toppane" style="text-align: center">
+        <br>
+        CAD 2D
+        <br>
+        <br>
+        Por: Cristofer Oswald
+    </div>
+    <div class="leftpane">
+        <button class="button button5" id="line" onclick="startDraw(1)"><img src='images/png/vector-5.png' width="50" height="50"/></button>
+        <button class="button button5" id="tri" onclick="startDraw(2)"><img src='images/png/triangle.png' width="50" height="50"/></button>
+        <button class="button button5" id="rec" onclick="startDraw(3)"><img src='images/png/rectangle-2.png' width="50" height="50"/></button>
+        <button class="button button5" id="circ" onclick="startDraw(4)"><img src='images/png/circle-outline.png' width="50" height="50"/></button>
+        <br>
+        <br>
+        <button class="button button5" id="scale" onclick="rescale()"><img src='images/png/scale.png' width="50" height="50"/></button>
+        <button class="button button5" id="translation" onclick="translation()"><img src='images/png/change.png' width="50" height="50"/></button>
+        <button class="button button5" id="rotate" onclick="rotateElem()"><img src='images/png/undo.png' width="50" height="50"/></button>
+        <button class="button button5" id="clear" onclick="clearDrawings()"><img src='images/png/recycle-bin.png' width="50" height="50"/></button>
+        <br>
+        <br>
+        <button class="button button5" id="zoom" onclick="zoomTo()"><img src='images/png/if_maximize_134215.png' width="50" height="50"/></button>
+        <button class="button button5" id="zoom_extend" onclick="zoomExtend()"><img src='images/png/if_interface-62_809269.png' width="50" height="50"/></button>
+        <br>
+        <br>
+        <label for="point">Ponto para operações(x,y; 0,0 para origem)</label><br><input type="text" id="point">
+        <br>
+        <br>
+        <label for="values">Translação(dx,dy)/Escala(sx,sy)</label><br><input type="text" id="values">
+        <br>
+        <br>
+        <label for="degs">Rotação(º)</label><br><input type="text" id="degs">
+        <br>
+        <br>
+        <label for="selection">Selecionar formas por ID(id1,id2,...)</label><br><input type="text" id="selection">
+        <button id = "selection_button" onclick="selectShapes()">Selecionar</button>
+        <br>
+        <br>
+        <button id = "deselection_button" onclick="deselectAllShapes()">Desecelecionar Todos</button>
+        <br>
+        <br>
+        <label for="command">Linha de comando a ser executada</label><br><input type="text" id="command">
+        <button id = "exec_comm" onclick="executarComando()">Executar</button>
+        <br>
+        <br>
+        <br>
+        <br>
+        <button class="button button5" id="help" onclick="showHelp()"><img src='images/png/information.png' width="50" height="50"/></button>
+    </div>
+    <div class="middlepane">
+        <canvas id="main_canvas" width="700" height="700" style="margin-top: 8%; background-color: #000000"></canvas>
+        <br>
+        <br>
+        <canvas id="coord_canvas" width="500" height="50"></canvas>
+    </div>
+    <div class="rightpane">
+        <table id="table_shapes" border='1' style="display: inline-table">
+            <tbody id = "table_shapes_body">
+                <tr id= "table_shapes_header">
+                    <th>
+                        ID
+                    </th>
+                    <th>
+                        Forma
+                    </th>
+                    <th>
+                        Pontos
+                    </th>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="js/main.js"></script>
+<script src="js/Point.js"></script>
+<script src="js/Line.js"></script>
+<script src="js/Triangle.js"></script>
+<script src="js/Rectangle.js"></script>
+<script src="js/Circle.js"></script>
+</body>
+</html>
