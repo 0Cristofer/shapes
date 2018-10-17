@@ -19,11 +19,12 @@
         <button class="button button5" id="tri" onclick="startDraw(2)"><img src='images/png/triangle.png' width="50" height="50"/></button>
         <button class="button button5" id="rec" onclick="startDraw(3)"><img src='images/png/rectangle-2.png' width="50" height="50"/></button>
         <button class="button button5" id="circ" onclick="startDraw(4)"><img src='images/png/circle-outline.png' width="50" height="50"/></button>
+        <button class="button button5" id="polygon" onclick="startPolygon()"><img src='images/png/polygon.png' width="50" height="50"/></button>
         <br>
         <br>
         <button class="button button5" id="scale" onclick="rescale()"><img src='images/png/scale.png' width="50" height="50"/></button>
         <button class="button button5" id="translation" onclick="translation()"><img src='images/png/change.png' width="50" height="50"/></button>
-        <button class="button button5" id="rotate" onclick="rotateElem()"><img src='images/png/undo.png' width="50" height="50"/></button>
+        <button class="button button5" id="rotate" onclick="rotate()"><img src='images/png/undo.png' width="50" height="50"/></button>
         <button class="button button5" id="clear" onclick="clearDrawings()"><img src='images/png/recycle-bin.png' width="50" height="50"/></button>
         <br>
         <br>
@@ -82,6 +83,7 @@
 
 <script src="js/main.js"></script>
 <script src="js/Point.js"></script>
+<script src="js/DrawableObject.js"></script>
 <script src="js/Line.js"></script>
 <script src="js/Triangle.js"></script>
 <script src="js/Rectangle.js"></script>

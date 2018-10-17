@@ -52,7 +52,7 @@ class Circle{
         context.stroke();
     }
 
-    getPontosString(){
+    getPointsString(){
         return "(C: " + this.center.x + ", " + this.center.y + "; R: " + this.radius + ")";
     }
 }

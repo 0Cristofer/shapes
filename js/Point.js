@@ -5,17 +5,16 @@ class Point{
     }
 
     scaleRelativeTo(sx, sy, p){
-        let scale_factor;
         let dist;
 
-        scale_factor = new Point(this.x - p.x, this.y - p.y);
-        dist = new Point(scale_factor.x, scale_factor.y);
+        dist = new Point(p.x*sx, p.y*sy);
 
-        scale_factor.x = scale_factor.x*sx;
-        scale_factor.y = scale_factor.y*sx;
+        dist = Point.subPoints(p, dist);
 
-        Point.subPointsInPlace(dist, scale_factor);
-        Point.sumPointsInPlace(p, dist);
+        this.x = this.x*sx;
+        this.y = this.y*sy;
+
+        Point.sumPointsInPlace(this, dist);
     }
 
     rotatePoint(degs, axis){

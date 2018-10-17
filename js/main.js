@@ -21,7 +21,6 @@ let mouse_pos;
 
 //Variáveis da lógica
 const VIEWPORT_SIZE = 700;
-const WORLD_SIZE = 7000;
 
 let viewport_start;
 let viewport_end;
@@ -30,6 +29,9 @@ let window_scale;
 let window_start;
 let window_end;
 let is_zooming = false;
+let drawing_polygon = false;
+let ended_polygon = false;
+let circle_sides = 18;
 
 let shapes = [];
 let points = [];
@@ -46,7 +48,6 @@ let actual_drawing = 0; //0: nada, 1: linha, 2: triangulo, 3: retangulo, 4: circ
 
 function rescale() {
     let shape;
-    let nearest;
 
     if(selection_elements.length === 0){
         alert("Não há elementos selecionados para fazer escala");
@@ -57,32 +58,8 @@ function rescale() {
 
     for(let i = 0; i < selection_elements.length; i++){
         shape = shapes[selection_elements[i]];
-        nearest = shape.findNearest(op_point);
 
-        switch(shape.name){
-            case "Circulo":
-                nearest.scaleRelativeTo(op_values.x, op_values.y, shape.center);
-                shape.radius = Point.calcDist(shape.border, shape.center);
-                break;
-
-            case "Linha":
-                nearest.scaleRelativeTo(op_values.x, op_values.y, shape.a);
-                nearest.scaleRelativeTo(op_values.x, op_values.y, shape.b);
-                break;
-
-            case "Retângulo":
-                nearest.scaleRelativeTo(op_values.x, op_values.y, shape.a);
-                nearest.scaleRelativeTo(op_values.x, op_values.y, shape.b);
-                nearest.scaleRelativeTo(op_values.x, op_values.y, shape.c);
-                nearest.scaleRelativeTo(op_values.x, op_values.y, shape.d);
-                break;
-
-            case "Triângulo":
-                nearest.scaleRelativeTo(op_values.x, op_values.y, shape.a);
-                nearest.scaleRelativeTo(op_values.x, op_values.y, shape.b);
-                nearest.scaleRelativeTo(op_values.x, op_values.y, shape.c);
-                break;
-        }
+        shape.scale(op_values.x, op_values.y, op_point);
     }
 
     refreshTable();
@@ -102,34 +79,14 @@ function translation() {
     for(let i = 0; i < selection_elements.length; i++){
         shape = shapes[selection_elements[i]];
 
-        switch(shape.name){
-            case "Circulo":
-                shape.center.translateTo(op_values);
-                shape.border.translateTo(op_values);
-                break;
-            case "Linha":
-                shape.a.translateTo(op_values);
-                shape.b.translateTo(op_values);
-                break;
-            case "Retângulo":
-                shape.a.translateTo(op_values);
-                shape.b.translateTo(op_values);
-                shape.c.translateTo(op_values);
-                shape.d.translateTo(op_values);
-                break;
-            case "Triângulo":
-                shape.a.translateTo(op_values);
-                shape.b.translateTo(op_values);
-                shape.c.translateTo(op_values);
-                break;
-        }
+        shape.translate(op_values);
     }
 
     refreshTable();
     drawAll();
 }
 
-function rotateElem() {
+function rotate() {
     let shape;
 
     if(selection_elements.length === 0){
@@ -142,30 +99,7 @@ function rotateElem() {
     for(let i = 0; i < selection_elements.length; i++){
         shape = shapes[selection_elements[i]];
 
-        switch(shape.name){
-            case "Circulo":
-                shape.center.rotatePoint(op_degs, op_point);
-                shape.border.rotatePoint(op_degs, op_point);
-                break;
-
-            case "Linha":
-                shape.a.rotatePoint(op_degs, op_point);
-                shape.b.rotatePoint(op_degs, op_point);
-                break;
-
-            case "Retângulo":
-                shape.a.rotatePoint(op_degs, op_point);
-                shape.b.rotatePoint(op_degs, op_point);
-                shape.c.rotatePoint(op_degs, op_point);
-                shape.d.rotatePoint(op_degs, op_point);
-                break;
-
-            case "Triângulo":
-                shape.a.rotatePoint(op_degs, op_point);
-                shape.b.rotatePoint(op_degs, op_point);
-                shape.c.rotatePoint(op_degs, op_point);
-                break;
-        }
+        shape.rotate(op_degs, op_point);
     }
 
     refreshTable();
@@ -268,6 +202,19 @@ function startDraw(type){
     actual_drawing = type;
 }
 
+function startPolygon() {
+    if(drawing_polygon && (n_points > 1)){
+        actual_id = actual_id + 1;
+
+        addDrwaing(new DrawableObject(points, actual_id, "polygon"));
+    }
+    else if (!drawing_polygon){
+        actual_drawing = 5;
+    }
+
+    drawing_polygon = !drawing_polygon;
+}
+
 function drawPoint(x, y){
     context_main_canvas.beginPath();
     context_main_canvas.strokeStyle = '#ffffff';
@@ -285,6 +232,8 @@ function endDrawing(){
     points = [];
     n_points = 0;
     is_zooming = false;
+    drawing_polygon = false;
+    ended_polygon = false;
 
     drawAll();
 }
@@ -294,14 +243,6 @@ function drawAll() {
 
     for(let i = 0; i < shapes.length; i++){
         shapes[i].draw(context_main_canvas, viewport_start, window_scale);
-    }
-}
-
-function zoomAll() {
-    context_main_canvas.clearRect(0, 0, main_canvas.width, main_canvas.height);
-
-    for(let i = 0; i < shapes.length; i++){
-        shapes[i].zoomPoints();
     }
 }
 
@@ -330,7 +271,7 @@ function updateTable(shape){
 
     id_cell.innerHTML = shape.id;
     shape_cell.innerHTML = shape.name;
-    pontos_cell.innerHTML = shape.getPontosString();
+    pontos_cell.innerHTML = shape.getPointsString();
 }
 
 function clearTable(){
@@ -554,30 +495,43 @@ function calcMousePos(canvas, x, y){
 function executarComando(){
     let command;
     let params;
+    let center, border;
+    let points = [];
 
     command = extend_string === "" ? command_input.value : extend_string;
     params = command.split(" ");
 
     if(command.startsWith("criarLinha")){
         actual_id = actual_id + 1;
-        addDrwaing(new Line(new Point(parseInt(params[1]), parseInt(params[2])),
-                            new Point(parseInt(params[3]), parseInt(params[4])), actual_id));
+
+        points.push(new Point(parseInt(params[1]), parseInt(params[2])));
+        points.push(new Point(parseInt(params[3]), parseInt(params[4])));
+
+        addDrwaing(new DrawableObject(points, actual_id, "Linha"));
     }
     else if(command.startsWith("criarTriangulo")){
         actual_id = actual_id + 1;
-        addDrwaing(new Triangle(new Point(parseInt(params[1]), parseInt(params[2])),
-                                new Point(parseInt(params[3]), parseInt(params[4])),
-                                new Point(parseInt(params[5]), parseInt(params[6])), actual_id));
+
+        points.push(new Point(parseInt(params[1]), parseInt(params[2])));
+        points.push(new Point(parseInt(params[3]), parseInt(params[4])));
+        points.push(new Point(parseInt(params[5]), parseInt(params[6])));
+
+        addDrwaing(new DrawableObject(points, actual_id, "Triângulo"));
     }
     else if(command.startsWith("criarRetangulo")){
         actual_id = actual_id + 1;
-        addDrwaing(new Rectangle(new Point(parseInt(params[1]), parseInt(params[2])),
-                                 new Point(parseInt(params[3]), parseInt(params[4])), actual_id));
+
+        addDrwaing(new DrawableObject(DrawableObject.createRectangle(
+            new Point(parseInt(params[1]), parseInt(params[2])), new Point(parseInt(params[3]), parseInt(params[4]))),
+            actual_id, "Retângulo"));
     }
     else if(command.startsWith("criarCirculo")){
+        center = new Point(parseInt(params[1]), parseInt(params[2]));
+        border = new Point(parseInt(params[3]), parseInt(params[4]));
+
         actual_id = actual_id + 1;
-        addDrwaing(new Circle(new Point(parseInt(params[1]), parseInt(params[2])),
-                              new Point(parseInt(params[3]), parseInt(params[4])), actual_id));
+
+        addDrwaing(new DrawableObject(DrawableObject.createCircle(center, border, circle_sides), actual_id, "Círculo", center));
     }
     else if(command.startsWith("selecionarObjetos")){
         command_selection_string = command.slice(18);
@@ -599,7 +553,7 @@ function executarComando(){
     else if(command.startsWith("rotacionar")){
         command_point_string = params[1] + "," + params[2];
         command_degs_string = params[3];
-        rotateElem();
+        rotate();
     }
     else if(command.startsWith("zoom")){
         let points = [new Point(parseInt(params[1]), parseInt(params[2])),
@@ -630,7 +584,7 @@ function clearWindowViewPort(){
 
 //Listeners
 
-let make_point = function(evt){
+let make_point = function(){
     let mouse_canvas = mouse_pos.zoomPoint().toCanvasPos();
     if(is_zooming){
         points.push(mouse_pos);
@@ -665,25 +619,33 @@ let make_point = function(evt){
                 case 1:
                     if (n_points === 2) {
                         actual_id = actual_id + 1;
-                        addDrwaing(new Line(points[0], points[1], actual_id));
+
+                        addDrwaing(new DrawableObject(points, actual_id, "Linha"));
                     }
                     break;
                 case 2:
                     if (n_points === 3) {
                         actual_id = actual_id + 1;
-                        addDrwaing(new Triangle(points[0], points[1], points[2], actual_id));
+
+                        addDrwaing(new DrawableObject(points, actual_id, "Triângulo"));
                     }
                     break;
                 case 3:
                     if (n_points === 2) {
+                        let points_n = DrawableObject.createRectangle(points[0], points[1]);
+
                         actual_id = actual_id + 1;
-                        addDrwaing(new Rectangle(points[0], points[1], actual_id));
+
+                        addDrwaing(new DrawableObject(points_n, actual_id, "Retângulo"));
                     }
                     break;
                 case 4:
                     if (n_points === 2) {
+                        let points_n = DrawableObject.createCircle(points[0], points[1], circle_sides);
+
                         actual_id = actual_id + 1;
-                        addDrwaing(new Circle(points[0], points[1], actual_id));
+
+                        addDrwaing(new DrawableObject(points_n, actual_id, "Círculo", points[0]));
                     }
                     break;
             }
@@ -695,7 +657,7 @@ let read_mouse_pos = function(evt){
     mouse_pos = calcMousePos(main_canvas, evt.clientX, evt.clientY);
 };
 
-let write_coords = function(evt){
+let write_coords = function(){
     let message = 'Coordenadas: x: ' + mouse_pos.x + ' y: ' + mouse_pos.y;
 
     writeMessage(coord_canvas, message, new Point(10, 25));
