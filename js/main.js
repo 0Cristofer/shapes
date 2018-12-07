@@ -34,6 +34,7 @@ let ended_polygon = false;
 let circle_sides = 18;
 
 let shapes = [];
+let prev_shapes = [];
 let points = [];
 let n_points = 0;
 let op_point;
@@ -56,6 +57,8 @@ function rescale() {
 
     readArgs(true, 0);
 
+    saveState();
+
     for(let i = 0; i < selection_elements.length; i++){
         shape = shapes[selection_elements[i]];
 
@@ -76,6 +79,8 @@ function translation() {
 
     readArgs(false, 1);
 
+    saveState();
+
     for(let i = 0; i < selection_elements.length; i++){
         shape = shapes[selection_elements[i]];
 
@@ -95,6 +100,8 @@ function rotate() {
     }
 
     readArgs(false, 2);
+
+    saveState();
 
     for(let i = 0; i < selection_elements.length; i++){
         shape = shapes[selection_elements[i]];
@@ -139,7 +146,7 @@ function selectShapes() {
                 selection_elements.push(actual_selection_elements[i]);
             }
 
-            shapes[actual_selection_elements[i]].cor = '#ff0000'
+            shapes[actual_selection_elements[i]].cor = '#000fff'
         }
 
         drawAll();
@@ -148,7 +155,7 @@ function selectShapes() {
 
 function deselectAllShapes(){
     for(let i = 0; i < selection_elements.length; i++){
-        shapes[selection_elements[i]].cor = '#ffffff'
+        shapes[selection_elements[i]].cor = '#000000'
     }
 
     selection_elements = [];
@@ -217,12 +224,13 @@ function startPolygon() {
 
 function drawPoint(x, y){
     context_main_canvas.beginPath();
-    context_main_canvas.strokeStyle = '#ffffff';
+    context_main_canvas.strokeStyle = '#000000';
     context_main_canvas.rect(x, y, 1, 1);
     context_main_canvas.stroke();
 }
 
 function addDrwaing(shape) {
+    saveState();
     shapes.push(shape);
     updateTable(shape);
     endDrawing();
@@ -244,6 +252,14 @@ function drawAll() {
     for(let i = 0; i < shapes.length; i++){
         shapes[i].draw(context_main_canvas, viewport_start, window_scale);
     }
+}
+
+function saveState() {
+    let prev_shape = [];
+    for(let i = 0; i < shapes.length; i++){
+        prev_shape.push(shapes[i].duplicate());
+    }
+    prev_shapes.push(prev_shape);
 }
 
 function clearDrawings() {
@@ -350,6 +366,14 @@ function zoomExtend() {
     extend_string = "zoom " + l_x.x + " " + l_x.y + " " + h_x.x + " " + h_x.y;
     executarComando();
     extend_string = "";
+}
+
+function undo() {
+    if(shapes.length !== 0){
+        shapes = prev_shapes.pop();
+        drawAll();
+        refreshTable();
+    }
 }
 
 function showHelp() {
@@ -660,14 +684,14 @@ let read_mouse_pos = function(evt){
 let write_coords = function(){
     let message = 'Coordenadas: x: ' + mouse_pos.x + ' y: ' + mouse_pos.y;
 
-    writeMessage(coord_canvas, message, new Point(10, 25));
+    coord_canvas.innerHTML = message;
 };
 
 main_canvas.addEventListener('mousemove', read_mouse_pos);
 main_canvas.addEventListener('mousemove', write_coords);
 main_canvas.addEventListener('mousedown', make_point);
 
-this.onload = function () {
+window.onload = function () {
     viewport_start = new Point(0, 0);
     viewport_end = new Point(700, 700);
     viewport_dist = new Point(700, 700);

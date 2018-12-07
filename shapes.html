@@ -51,16 +51,15 @@
         <label for="command">Linha de comando a ser executada</label><br><input type="text" id="command">
         <button id = "exec_comm" onclick="executarComando()">Executar</button>
         <br>
-        <br>
-        <br>
+        <button id = "undo_button" onclick="undo()">Desfazer</button>
         <br>
         <button class="button button5" id="help" onclick="showHelp()"><img src='images/png/information.png' width="50" height="50"/></button>
     </div>
     <div class="middlepane">
-        <canvas id="main_canvas" width="700" height="700" style="margin-top: 8%; background-color: #000000"></canvas>
+        <canvas id="main_canvas" width="700" height="700" style="margin-top: 8%; background-color: #bbbbbb"></canvas>
         <br>
         <br>
-        <canvas id="coord_canvas" width="500" height="50"></canvas>
+        <span id="coord_canvas" width="500" height="50" style="color: aliceblue;"></span>
     </div>
     <div class="rightpane">
         <table id="table_shapes" border='1' style="display: inline-table">
@@ -84,9 +83,5 @@
 <script src="js/main.js"></script>
 <script src="js/Point.js"></script>
 <script src="js/DrawableObject.js"></script>
-<script src="js/Line.js"></script>
-<script src="js/Triangle.js"></script>
-<script src="js/Rectangle.js"></script>
-<script src="js/Circle.js"></script>
 </body>
 </html>

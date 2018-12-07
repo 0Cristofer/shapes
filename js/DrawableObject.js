@@ -3,7 +3,7 @@ class DrawableObject{
         this.id = id;
         this.points = points;
         this.name = name;
-        this.cor = '#ffffff';
+        this.cor = '#000000';
 
         if(center === undefined){
             this.center = false;
@@ -95,6 +95,16 @@ class DrawableObject{
         str = str + ")";
 
         return str;
+    }
+
+    duplicate(){
+        let n_points = [];
+
+        for(let i = 0; i < this.points.length; i++){
+            n_points.push(this.points[i].duplicate());
+        }
+
+        return new DrawableObject(n_points, this.id, this.name, this.center);
     }
 
     static createRectangle(p1, p2){

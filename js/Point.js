@@ -41,11 +41,6 @@ class Point{
         Point.sumPointsInPlace(this, dist);
     }
 
-    makeasDistance(){
-        this.x = this.x < 0 ? this.x*-1 : this.x;
-        this.y = this.y < 0 ? this.y*-1 : this.y;
-    }
-
     static sumPoints(a, b){
         return new Point(a.x + b.x, a.y + b.y);
     }
@@ -57,11 +52,6 @@ class Point{
 
     static subPoints(a, b){
         return new Point(a.x - b.x, a.y - b.y);
-    }
-
-    static subPointsInPlace(a, b){
-        a.x = a.x - b.x;
-        a.y = a.y - b.y;
     }
 
     static compPoints(a, b){
@@ -130,5 +120,9 @@ class Point{
     toWorldPos(){
         return Point.sumPoints(new Point(Math.ceil(this.x/window_scale.x),
             Math.ceil((VIEWPORT_SIZE-this.y)/window_scale.y)), window_start);
+    }
+
+    duplicate(){
+        return new Point(this.x, this.y);
     }
 }

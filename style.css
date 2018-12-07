@@ -20,7 +20,7 @@ body, html {
     width: 100%;
     height: 10%;
     border-collapse: collapse;
-    background-color: #4da6ff;
+    background-color: #0040a8;
 }
 
 .leftpane {
@@ -29,7 +29,8 @@ body, html {
     float: left;
     border-collapse: collapse;
     text-align: center;
-    background-color: #ff231c;
+    background-color: #696969;
+    overflow-y: auto;
 }
 
 .middlepane {
@@ -38,7 +39,7 @@ body, html {
     float: left;
     text-align: center;
     border-collapse: collapse;
-    background-color: #fff511;
+    background-color: #000000;
 }
 
 .rightpane {
@@ -47,7 +48,8 @@ body, html {
     float: right;
     text-align: center;
     border-collapse: collapse;
-    background-color: #ff231c;
+    background-color: #696969;
+    overflow-y: auto;
 }
 
 .coord{
